@@ -303,7 +303,8 @@ function change(event, positive)
             if p.character and p.auto_trash_filters[item] ~= nil and p.auto_trash_filters[item] < math.ceil(game.item_prototypes[item].stack_size*d.settings[item]) then
                 trash_warning = ' [Auto trash: '..p.auto_trash_filters[item]..']'
             end
-            return '[item='..item..']: '..d.settings[item]..' stacks ('..math.ceil(game.item_prototypes[item].stack_size*d.settings[item])..' items)'..trash_warning
+            -- Add the / 10 on bigger stacksize
+            return '[item='..item..']: '..d.settings[item]..' stacks ('..math.ceil(pretend_stack_size(game.item_prototypes[item].stack_size)*d.settings[item])..' items)'..trash_warning
         end
         function printall()
             p.print('Changed default autocraft stack size: '..d.settings['Default']..' stacks.')
