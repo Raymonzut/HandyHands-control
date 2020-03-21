@@ -107,6 +107,11 @@ function stack_size(item)
     return stack_size_cache[item]
 end
 
+-- For better interaction with stack size changing mods: Pretend that the max stack size is only 1/10 as big.
+function pretend_stack_size(stack_size)
+    if stack_size >= 500 then return stack_size / 10 else return stack_size end
+end
+
 function get_request_count(p, d, item)
     local setting = d.settings[item]
     if setting == nil then
@@ -115,11 +120,7 @@ function get_request_count(p, d, item)
             p.print(mod_name..' Error: Uninitialised Default setting.')
         end
     end
-    local stsz = stack_size(item)
-    -- For better interaction with stack size changing mods: Pretend that the max stack size is only 1/10 as big.
-    if stsz >= 500 then
-        stsz = stsz / 10
-    end
+    local stsz = pretend_stack_size(stack_size(item))
     local mi = math.ceil(stsz*setting)
     -- Don't keep autocrafting this item if it will just end up in logistics trash slots.
     if p.character and p.auto_trash_filters[item] then
@@ -302,7 +303,8 @@ function change(event, positive)
             if p.character and p.auto_trash_filters[item] ~= nil and p.auto_trash_filters[item] < math.ceil(game.item_prototypes[item].stack_size*d.settings[item]) then
                 trash_warning = ' [Auto trash: '..p.auto_trash_filters[item]..']'
             end
-            return '[item='..item..']: '..d.settings[item]..' stacks ('..math.ceil(game.item_prototypes[item].stack_size*d.settings[item])..' items)'..trash_warning
+            -- Add the / 10 on bigger stacksize
+            return '[item='..item..']: '..d.settings[item]..' stacks ('..math.ceil(pretend_stack_size(game.item_prototypes[item].stack_size)*d.settings[item])..' items)'..trash_warning
         end
         function printall()
             p.print('Changed default autocraft stack size: '..d.settings['Default']..' stacks.')
